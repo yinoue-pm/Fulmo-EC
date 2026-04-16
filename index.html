@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fulmo EC分析ポータル</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 40px; }
+  .header h1 {
+    font-size: 28px; font-weight: 700; color: #111; margin-bottom: 8px;
+  }
+  .header .sub {
+    font-size: 13px; color: #666;
+  }
+  .header .meta {
+    margin-top: 14px; display: inline-flex; gap: 16px;
+    background: #fff; border: 1px solid #e0e0e0; border-radius: 24px;
+    padding: 8px 20px; font-size: 12px; color: #333;
+  }
+  .header .meta b { color: #C62828; }
+
+  .section-title {
+    font-size: 16px; font-weight: 700; color: #111;
+    margin: 32px 0 16px; padding-left: 12px;
+    border-left: 4px solid #C62828;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: #fff; border-radius: 14px;
+    border: 1px solid #e0e0e0;
+    padding: 22px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: all .2s;
+    display: flex; flex-direction: column;
+  }
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .card.placeholder {
+    background: #fafafa; border-style: dashed; opacity: 0.7;
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .card-title { font-size: 17px; font-weight: 700; color: #111; }
+  .badge {
+    font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 12px;
+  }
+  .badge.a { background: #fde4e4; color: #C62828; }
+  .badge.b { background: #e3f2fd; color: #1976D2; }
+  .badge.c { background: #fff3cd; color: #856404; }
+  .badge.gray { background: #eee; color: #888; }
+
+  .card-url {
+    font-size: 11px; color: #999; margin-bottom: 14px;
+    word-break: break-all;
+  }
+  .card-url a { color: #1976D2; text-decoration: none; }
+
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 16px;
+  }
+  .stat {
+    background: #f8f8f8; border-radius: 8px; padding: 8px 10px;
+  }
+  .stat .label { font-size: 10px; color: #888; }
+  .stat .value { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+  .stat .sub { font-size: 10px; color: #999; }
+  .stat.alert { background: #fff8f8; border: 1px solid #C6282820; }
+  .stat.alert .value { color: #C62828; }
+
+  .insight {
+    background: #fff8e1; border-left: 3px solid #ffc107;
+    padding: 8px 10px; border-radius: 4px;
+    font-size: 11px; color: #533f03; line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .actions { margin-top: auto; display: flex; gap: 8px; }
+  .btn {
+    flex: 1; padding: 10px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; text-align: center;
+    text-decoration: none; transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .btn.primary { background: #C62828; color: #fff; }
+  .btn.primary:hover { background: #b71c1c; }
+  .btn.secondary { background: #fff; color: #333; border-color: #ddd; }
+  .btn.secondary:hover { background: #f5f5f5; }
+
+  .placeholder-text {
+    font-size: 13px; color: #999; padding: 24px 0; text-align: center;
+  }
+
+  .footer {
+    margin-top: 48px; padding-top: 24px; border-top: 1px solid #e0e0e0;
+    text-align: center; font-size: 11px; color: #999;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>📊 Fulmo EC分析ポータル</h1>
+    <p class="sub">myCelf による DB型ECサイト の月次SEO×CVR分析</p>
+    <div class="meta">
+      <span>対象期間: <b>2026年3月</b></span>
+      <span>分析サイト: <b>2件</b></span>
+      <span>準備中: <b>5件</b></span>
+    </div>
+  </div>
+
+  <div class="section-title">📈 月次分析レポート（実データ反映済み）</div>
+  <div class="grid">
+
+    <!-- Patira -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Patira（パティラ）</div>
+        <span class="badge a">Phase A</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.patira.jp" target="_blank">www.patira.jp</a> ｜ 結婚式お呼ばれドレス
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">月間売上</div>
+          <div class="value">¥27,810</div>
+          <div class="sub">CV 4件</div>
+        </div>
+        <div class="stat">
+          <div class="label">月間Ss</div>
+          <div class="value">1,509</div>
+          <div class="sub">CVR 0.27%</div>
+        </div>
+        <div class="stat alert">
+          <div class="label">CV系LP Ss</div>
+          <div class="value">96</div>
+          <div class="sub">目標 1,000</div>
+        </div>
+        <div class="stat">
+          <div class="label">詳細遷移率</div>
+          <div class="value">62.7%</div>
+          <div class="sub">前月比 +8pt</div>
+        </div>
+      </div>
+      <div class="insight">
+        <b>🎯 ボトルネック：</b>商品詳細→住所入力で96.8%離脱（921人脱落）。記事LPからCV系LPへの内部リンク強化が最大レバー。
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="分析/Patira_SEO×CVR分析フロー.html">詳細分析を見る →</a>
+      </div>
+    </div>
+
+    <!-- Lovely-wear -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Lovely-wear（ラブリーウェア）</div>
+        <span class="badge a">Phase A</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.lovely-wear.jp" target="_blank">www.lovely-wear.jp</a> ｜ ルームウェア専門店
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">月間売上</div>
+          <div class="value">¥14,380</div>
+          <div class="sub">CV 4件</div>
+        </div>
+        <div class="stat">
+          <div class="label">月間Ss</div>
+          <div class="value">1,266</div>
+          <div class="sub">CVR 0.32%</div>
+        </div>
+        <div class="stat alert">
+          <div class="label">CV系LP Ss</div>
+          <div class="value">92</div>
+          <div class="sub">目標 1,000</div>
+        </div>
+        <div class="stat">
+          <div class="label">TOP順位</div>
+          <div class="value">12.66</div>
+          <div class="sub">CTR 1.46%</div>
+        </div>
+      </div>
+      <div class="insight">
+        <b>🎯 ボトルネック：</b>記事LP月762Ss → カテゴリSs わずか16件。記事内CTAでカテゴリ誘導強化が最優先。
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="分析/Lovely-wear_SEO×CVR分析フロー.html">詳細分析を見る →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">🔍 カニバリゼーション分析実施済み（月次レポート準備中）</div>
+  <div class="grid">
+
+    <div class="card placeholder">
+      <div class="card-head">
+        <div class="card-title">Ryumia</div>
+        <span class="badge gray">分析済</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.ryumia.jp" target="_blank">www.ryumia.jp</a> ｜ レディースリュック
+      </div>
+      <div class="placeholder-text">
+        130記事中116件のカニバリ統合計画作成済み<br>
+        Winners: /6, /18, /45, /122
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="分析/ryumia_カニバリ統合計画.xlsx">カニバリ計画を見る</a>
+      </div>
+    </div>
+
+    <div class="card placeholder">
+      <div class="card-head">
+        <div class="card-title">Hammock-lab</div>
+        <span class="badge gray">分析済</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.hammock-lab.jp" target="_blank">www.hammock-lab.jp</a> ｜ ハンモック専門店
+      </div>
+      <div class="placeholder-text">
+        50記事中9件の直接カニバリ統合<br>
+        Winners: /6 屋内, /45 キャンプ, TOP
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="分析/hammock-lab_カニバリ統合計画.xlsx">カニバリ計画を見る</a>
+      </div>
+    </div>
+
+    <div class="card placeholder">
+      <div class="card-head">
+        <div class="card-title">Totebase</div>
+        <span class="badge gray">分析済</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.totebase.jp" target="_blank">www.totebase.jp</a> ｜ トートバッグ専門店
+      </div>
+      <div class="placeholder-text">
+        70記事中10件のカニバリ統合<br>
+        Winners: /63 革×キャンバス, /65 大人キャンバストート
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="分析/totebase_カニバリ統合計画.xlsx">カニバリ計画を見る</a>
+      </div>
+    </div>
+
+    <div class="card placeholder">
+      <div class="card-head">
+        <div class="card-title">Noirkloris</div>
+        <span class="badge gray">分析済</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.noirkloris.jp" target="_blank">www.noirkloris.jp</a> ｜ 黒ドレス専門店
+      </div>
+      <div class="placeholder-text">
+        111記事中13件のカニバリ統合<br>
+        Winners: /42 演奏会, /10 キラキラ, /8 ミニ丈
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="分析/noirkloris_カニバリ統合計画.xlsx">カニバリ計画を見る</a>
+      </div>
+    </div>
+
+    <div class="card placeholder">
+      <div class="card-head">
+        <div class="card-title">Tsutsumin-bag</div>
+        <span class="badge gray">分析済</span>
+      </div>
+      <div class="card-url">
+        <a href="https://www.tsutsumin-bag.jp" target="_blank">www.tsutsumin-bag.jp</a> ｜ 巾着バッグ専門店
+      </div>
+      <div class="placeholder-text">
+        54記事中3件のカニバリ統合（軽微）<br>
+        Winners: /category/2, /category/4, TOP
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="分析/tsutsumin-bag_カニバリ統合計画.xlsx">カニバリ計画を見る</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Generated by myCelf Analysis 部 ｜ 最終更新: 2026年4月16日
+  </div>
+</div>
+
+</body>
+</html>

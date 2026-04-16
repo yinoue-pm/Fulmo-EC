@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lovely-wear SEO×CVR 分析フロー｜26/3実データ適用版</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #fff;
+    color: #1a1a1a;
+    padding: 24px;
+  }
+  h1 {
+    text-align: center;
+    color: #111;
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  /* ===== 大枠フロー図（概念図） ===== */
+  .overview {
+    max-width: 1100px;
+    margin: 0 auto 32px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
+    padding: 28px 32px;
+  }
+  .overview h2 {
+    font-size: 15px;
+    color: #111;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ddd;
+  }
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .flow-node {
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    max-width: 440px;
+    width: 100%;
+    position: relative;
+  }
+  .flow-node.start {
+    background: #111;
+    color: #fff;
+  }
+  .flow-node.decision {
+    background: #f5f5f5;
+    border: 2px solid #C62828;
+    color: #111;
+    transform: none;
+    clip-path: none;
+  }
+  .flow-arrow {
+    font-size: 22px;
+    color: #999;
+    margin: 4px 0;
+  }
+  .flow-branch-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+    max-width: 1000px;
+    flex-wrap: wrap;
+  }
+  .flow-branch {
+    flex: 1;
+    min-width: 260px;
+    max-width: 320px;
+    text-align: center;
+  }
+  .flow-branch-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .flow-branch-node {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .flow-branch-node.action-ss { background: #f5f5f5; color: #111; border: 2px solid #333; }
+  .flow-branch-node.action-cvlp { background: #f5f5f5; color: #C62828; border: 2px solid #C62828; }
+  .flow-branch-node.action-funnel { background: #f5f5f5; color: #C62828; border: 2px solid #C62828; }
+  .flow-branch-sub {
+    font-size: 11px;
+    color: #666;
+    margin-top: 6px;
+    font-weight: normal;
+  }
+  .flow-connector {
+    width: 2px;
+    height: 18px;
+    background: #ccc;
+    margin: 0 auto;
+  }
+  .flow-connector-h {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .flow-connector-h::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 2px;
+    background: #ccc;
+  }
+  .flow-connector-h .branch-line {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .flow-connector-h .branch-line .vline {
+    width: 2px;
+    height: 16px;
+    background: #ccc;
+  }
+
+  /* ===== Phase cards ===== */
+  .phase {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
+  }
+  .phase-header {
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .phase-body {
+    background: #fff;
+    padding: 24px;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 16px;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 13px;
+  }
+  .step-content { flex: 1; min-width: 0; }
+  .step-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+  .step-desc { font-size: 13px; color: #444; line-height: 1.6; }
+  .branch-box {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+    border-left: 4px solid;
+  }
+  .branch-box h4 { font-size: 13px; margin-bottom: 6px; }
+  .branch-box ul { padding-left: 18px; font-size: 13px; line-height: 1.7; color: #333; }
+  .branches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .arrow-down { text-align: center; font-size: 22px; color: #999; margin: 8px 0; }
+
+  /* Phase colors — monochrome base, red for critical */
+  .p1 .phase-header { background: #333; }
+  .p1 .step-icon { background: #555; }
+  .p1 .branch-box { border-color: #555; }
+
+  .p2 .phase-header { background: #C62828; }
+  .p2 .step-icon { background: #C62828; }
+  .p2 .branch-box { border-color: #C62828; }
+
+  .p3 .phase-header { background: #333; }
+  .p3 .step-icon { background: #555; }
+  .p3 .branch-box { border-color: #555; }
+
+  .p4 .phase-header { background: #C62828; }
+  .p4 .step-icon { background: #C62828; }
+  .p4 .branch-box { border-color: #C62828; }
+
+  .p5 .phase-header { background: #333; }
+  .p5 .step-icon { background: #555; }
+  .p5 .branch-box { border-color: #555; }
+
+  .action-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+  }
+  .action-tag.seo { background: #eee; color: #333; }
+  .action-tag.cvr { background: #fce4ec; color: #C62828; }
+  .action-tag.both { background: #eee; color: #C62828; }
+
+  .legend {
+    max-width: 1100px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .check-item {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .check-item strong {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 2px;
+  }
+
+  .kpi-bar {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0 4px;
+    flex-wrap: wrap;
+  }
+  .kpi-chip {
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: #333;
+    border: 1px solid #ccc;
+  }
+  .kpi-chip b { color: #111; }
+</style>
+</head>
+<body>
+
+<h1>Lovely-wear SEO × CVR 分析フロー <span style="font-size:14px;color:#C62828;font-weight:normal;">｜26/3実データ適用版</span></h1>
+<p class="subtitle">https://www.lovely-wear.jp ｜ CVLPSs（CV系LPセッション数）を起点に、Ss拡大 or CVR改善の判断を行う分析フロー</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#eee;border:1px solid #333"></div>Ss（セッション）改善</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fce4ec;border:1px solid #C62828"></div>CVR改善</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f5f5f5;border:1px solid #C62828"></div>CVLP改善</div>
+</div>
+
+<div style="max-width:1100px;margin:0 auto 28px;background:#fff8f8;border:2px solid #C62828;border-radius:12px;padding:24px 28px;">
+  <h2 style="font-size:16px;color:#C62828;margin-bottom:12px;border-bottom:2px solid #C6282830;padding-bottom:8px;">
+    🎯 Lovely-wear実データサマリー（26/3）
+  </h2>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+    <div style="flex:1;min-width:140px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:12px 16px;">
+      <div style="font-size:11px;color:#666;">現在Phase</div>
+      <div style="font-size:20px;font-weight:700;color:#C62828;">Phase A</div>
+      <div style="font-size:11px;color:#666;">CVLP改善</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:12px 16px;">
+      <div style="font-size:11px;color:#666;">月間売上</div>
+      <div style="font-size:20px;font-weight:700;">¥14,380</div>
+      <div style="font-size:11px;color:#666;">CV 4件</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:12px 16px;">
+      <div style="font-size:11px;color:#666;">月間Ss</div>
+      <div style="font-size:20px;font-weight:700;">1,266</div>
+      <div style="font-size:11px;color:#666;">CVR 0.32%</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#fff8f8;border:2px solid #C62828;border-radius:8px;padding:12px 16px;">
+      <div style="font-size:11px;color:#666;">CV系LP Ss（月間）</div>
+      <div style="font-size:20px;font-weight:700;color:#C62828;">92</div>
+      <div style="font-size:11px;color:#666;">目標 1,000 ← 約10倍必要</div>
+    </div>
+  </div>
+  <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:12px;line-height:1.8;color:#533f03;">
+    <b>⚠️ Phase A判定の根拠：</b> CV系LPセッション数 <b>92件/月</b>。TOP順位12.66位は健闘するもCTR1.46%。記事LP月762Ssあるがカテゴリへの内部導線が弱い（カテゴリSs16件のみ）。
+  </div>
+  
+        <h3 style="font-size:14px;color:#111;margin-bottom:10px;">🔥 Priority Score Top 5（Week1即着手）</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;margin-bottom:18px;">
+          <thead><tr style="background:#f5f5f5;">
+            <th style="padding:8px;border:1px solid #e0e0e0;">#</th>
+            <th style="padding:8px;border:1px solid #e0e0e0;text-align:left;">LP</th>
+            <th style="padding:8px;border:1px solid #e0e0e0;">Imp</th>
+            <th style="padding:8px;border:1px solid #e0e0e0;">Click</th>
+            <th style="padding:8px;border:1px solid #e0e0e0;">Pos</th>
+            <th style="padding:8px;border:1px solid #e0e0e0;">Score</th>
+            <th style="padding:8px;border:1px solid #e0e0e0;text-align:left;">状態</th>
+          </tr></thead>
+          <tbody><tr style="background:#fff3cd;">
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;"><b>1</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;"><b>cat/6 ネグリジェ</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">161</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">4</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">21.5</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;"><b>20</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;">唯一のSEO流入源 → 10位以内へ</td>
+            </tr><tr>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;"><b>2</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;"><b>TOP</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">1981</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">29</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">12.66</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;"><b>18</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;">pos12.66/CTR1.46% → 健闘中、PC強化余地</td>
+            </tr><tr>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;"><b>3</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;"><b>cat/25</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">178</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">1</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;">26.4</td>
+              <td style="padding:8px;border:1px solid #e0e0e0;text-align:center;"><b>12</b></td>
+              <td style="padding:8px;border:1px solid #e0e0e0;">imp178 → title最適化</td>
+            </tr></tbody>
+        </table>
+  
+    <h3 style="font-size:14px;color:#111;margin-top:24px;margin-bottom:10px;">📈 月次トレンド（25/10〜26/3）</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;">
+      <thead><tr style="background:#f5f5f5;">
+        <th style="padding:8px;border:1px solid #e0e0e0;text-align:left;">指標</th><th style="padding:8px;border:1px solid #e0e0e0;">25/10</th><th style="padding:8px;border:1px solid #e0e0e0;">25/11</th><th style="padding:8px;border:1px solid #e0e0e0;">25/12</th><th style="padding:8px;border:1px solid #e0e0e0;">26/1</th><th style="padding:8px;border:1px solid #e0e0e0;">26/2</th><th style="padding:8px;border:1px solid #e0e0e0;background:#fff8f8;">26/3</th>
+        <th style="padding:8px;border:1px solid #e0e0e0;text-align:left;">トレンド</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">売上</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥10,000</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥18,900</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥23,840</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥7,640</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥11,880</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">¥14,380</td><td style="padding:8px;border:1px solid #e0e0e0;color:#2E7D32;">25/10比 +44%</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">CV数</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">2</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">4</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">5</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">2</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">2</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">4</td><td style="padding:8px;border:1px solid #e0e0e0;color:#666;"></td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">単価</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥5,000</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥4,725</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥4,768</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥3,820</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥5,940</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">¥3,595</td><td style="padding:8px;border:1px solid #e0e0e0;color:#666;">安定</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">Ss数</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">958</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">1,237</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">1,467</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">1,633</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">1,309</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">1,266</td><td style="padding:8px;border:1px solid #e0e0e0;color:#2E7D32;">25/10比 +32%</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">CVR</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.21%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.32%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.34%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.12%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.15%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">0.32%</td><td style="padding:8px;border:1px solid #e0e0e0;color:#C62828;">業界平均1〜2%対比要改善</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">詳細遷移率</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">39.3%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">41.9%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">35.5%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">38.6%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">32.3%</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">39.6%</td><td style="padding:8px;border:1px solid #e0e0e0;color:#666;">25/10比 +1%</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">TOPSs</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">47</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">493</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">60</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">78</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">69</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">76</td><td style="padding:8px;border:1px solid #e0e0e0;color:#2E7D32;">25/10比 +62%</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;font-weight:600;">カテゴリSs</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">11</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">15</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">16</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">13</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">13</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;background:#fff8f8;font-weight:700;">16</td><td style="padding:8px;border:1px solid #e0e0e0;color:#2E7D32;">25/10比 +45%</td></tr>
+      </tbody>
+    </table>
+
+  
+        <h3 style="font-size:14px;color:#111;margin-top:24px;margin-bottom:10px;">🔻 購入ファネル（26/3）</h3>
+        <div style="background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;font-weight:700;">
+            <div style="text-align:center;flex:1;min-width:90px;background:#f5f5f5;border-radius:8px;padding:14px 8px;">全体<br><span style="font-size:20px;color:#1a1a1a;">1,267</span></div>
+            <div style="font-size:18px;color:#666;">→ <span style="font-size:11px;color:#2E7D32;">39.5%</span> →</div>
+            <div style="text-align:center;flex:1;min-width:90px;background:#f5f5f5;border-radius:8px;padding:14px 8px;">商品詳細<br><span style="font-size:20px;color:#1a1a1a;">501</span></div>
+            <div style="font-size:18px;color:#C62828;font-weight:700;">→ <span style="font-size:11px;">2.0%</span> →</div>
+            <div style="text-align:center;flex:1;min-width:90px;background:#fff8f8;border:2px solid #C62828;border-radius:8px;padding:14px 8px;">住所入力<br><span style="font-size:20px;color:#C62828;">10</span></div>
+            <div style="font-size:18px;color:#666;">→ <span style="font-size:11px;color:#2E7D32;">30.0%</span> →</div>
+            <div style="text-align:center;flex:1;min-width:90px;background:#e8f5e9;border-radius:8px;padding:14px 8px;">購入完了<br><span style="font-size:20px;color:#2E7D32;">3</span></div>
+          </div>
+          <div style="margin-top:14px;padding:10px 12px;background:#fff8f8;border-left:4px solid #C62828;border-radius:4px;font-size:12px;color:#333;line-height:1.8;">
+            <b>🚨 最大ボトルネック：商品詳細→住所入力で98.0%が離脱</b>（491人脱落）
+          </div>
+        </div>
+
+  
+        <div style="margin-top:14px;padding:12px 14px;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;font-size:12px;color:#533f03;line-height:1.8;">
+          <b>📱 TOPページのデバイス差分（26/3）：</b><br>
+          全体: <b>29click / 1,981imp / CTR 1.46% / pos 12.66</b><br>
+          モバイル: 2click / 1,015imp / CTR 0.2%（pos 13.32）<br>
+          PC: 0click / 141imp / CTR 0%（pos 37.21）
+        </div>
+
+  
+    <h3 style="font-size:14px;color:#111;margin-top:24px;margin-bottom:10px;">🎯 売上目標と必要Ss（試算）</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;">
+      <thead><tr style="background:#f5f5f5;">
+        <th style="padding:8px;border:1px solid #e0e0e0;">目標売上</th>
+        <th style="padding:8px;border:1px solid #e0e0e0;">必要CV</th>
+        <th style="padding:8px;border:1px solid #e0e0e0;">必要③Ss</th>
+        <th style="padding:8px;border:1px solid #e0e0e0;">必要①CV系LP</th>
+        <th style="padding:8px;border:1px solid #e0e0e0;">必要②CVR</th>
+        <th style="padding:8px;border:1px solid #e0e0e0;text-align:left;">ギャップ</th>
+      </tr></thead>
+      <tbody>
+        <tr style="background:#fff8f8;"><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;font-weight:700;">¥14,380（現状26/3）</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">4</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">1,266</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;font-weight:700;color:#C62828;">92</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.32%</td><td style="padding:8px;border:1px solid #e0e0e0;">現実績</td></tr>
+        <tr><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥30,000</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">11</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">4,900</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">1,400</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.22%</td><td style="padding:8px;border:1px solid #e0e0e0;">CV系LP増加</td></tr><tr><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥50,000</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">16</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">6,100</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">2,300</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.26%</td><td style="padding:8px;border:1px solid #e0e0e0;">CV系LP増加</td></tr><tr><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">¥100,000</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">30</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">7,800</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">4,000</td><td style="padding:8px;border:1px solid #e0e0e0;text-align:right;">0.38%</td><td style="padding:8px;border:1px solid #e0e0e0;">CV系LP+CVR</td></tr>
+      </tbody>
+    </table>
+
+  <div style="margin-top:18px;padding:12px 14px;background:#fff;border:2px solid #2E7D32;border-radius:8px;font-size:12px;color:#333;line-height:1.8;">
+    <b style="color:#2E7D32;">📌 戦略上の重要発見</b><br>
+    ① TOP順位 <b>pos12.66 / CTR1.46%</b> は健闘中（Patira pos35.77比で大幅優秀）<br>② <b>記事LP月762Ss → カテゴリSs わずか16件</b> が最大ボトルネック<br>③ ファネル <b>詳細→住所離脱率98.0%</b>（501→10）でPatiraより深刻 → 商品詳細導線改善が必須<br>④ TOP <b>PCはCTR0%</b>（141imp） — モバイル特化サイトと判断可
+  </div>
+  <h3 style="font-size:14px;color:#111;margin-top:24px;margin-bottom:10px;">📅 Week 1 実行タスク（今週）</h3>
+  <ul style="padding-left:22px;font-size:12px;line-height:1.9;color:#333;"><li><b>記事→カテゴリ内部リンクCTAの追加</b>（2h） — 月762Ssの記事LPからcat/6・cat/25等への誘導</li>
+<li><b>cat/6（ネグリジェ）title強化</b>（30分） — 4click/161imp/pos21.5 → 10位以内へ押し上げ</li>
+<li><b>cat/25のtitle/meta最適化</b>（30分） — 1click/178imp/pos26.4</li>
+<li><b>商品詳細ページの購入導線監査</b>（1h） — 詳細→住所離脱98%の根本対応</li>
+<li><b>全カテゴリにmeta description初期設定</b>（3h） — Shoppal管理画面から一括</li>
+</ul>
+  <div style="margin-top:12px;padding:10px 12px;background:#e8f5e9;border-radius:6px;font-size:12px;color:#1b5e20;">
+    ✅ <b>判定ロジック適用結果：</b> CVLPSs &lt; 1,000 → Phase A確定。下部の「Phase A: CVLP改善」セクションの施策を全件実行対象とする。
+  </div>
+</div>
+
+<!-- ===== 全体概念図 ===== -->
+<div class="overview">
+  <h2>大枠フロー（全体像）</h2>
+  <div class="flow-diagram">
+
+    <div class="flow-node start">START: GA4 / GSC でCVLP（TOP・カテゴリ・一覧）のSsを確認</div>
+    <div class="flow-arrow">▼</div>
+
+    <div class="flow-node decision">Q1. CVLPSs（CV系LPへのセッション数）は十分か？</div>
+
+    <!-- 横分岐 -->
+    <div style="display:flex;gap:0;width:100%;max-width:900px;margin-top:8px;">
+      <!-- 左: 少ない -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+        <div class="flow-branch-label" style="color:#C62828;">NO（少ない）</div>
+        <div class="flow-connector" style="height:10px;"></div>
+        <div class="flow-branch-node action-cvlp" style="width:90%;">
+          CVLP改善を優先<br>
+          <span style="font-weight:normal;font-size:12px;">→ 詳細は Phase A へ</span>
+        </div>
+      </div>
+      <!-- 右: 十分 -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+        <div class="flow-branch-label" style="color:#333;">YES（十分）</div>
+        <div class="flow-connector" style="height:10px;"></div>
+        <div class="flow-node decision" style="width:90%;padding:10px 14px;font-size:13px;">Q2. CVRは高いか？</div>
+        <div style="display:flex;gap:0;width:100%;margin-top:8px;">
+          <!-- CVR高い -->
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+            <div class="flow-branch-label" style="color:#333;">YES（高い）</div>
+            <div class="flow-connector" style="height:10px;"></div>
+            <div class="flow-branch-node action-ss" style="width:85%;font-size:12px;">
+              Ss拡大に注力<br>
+              <span style="font-weight:normal;font-size:11px;">→ 詳細は Phase B へ</span>
+            </div>
+          </div>
+          <!-- CVR低い -->
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+            <div class="flow-branch-label" style="color:#C62828;">NO（低い）</div>
+            <div class="flow-connector" style="height:10px;"></div>
+            <div class="flow-branch-node action-funnel" style="width:85%;font-size:12px;">
+              歩留ボトルネック特定<br>
+              <span style="font-weight:normal;font-size:11px;">→ 詳細は Phase C へ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===== Phase A: CVLPSs が少ない → CVLP改善 ===== -->
+<div class="phase p2">
+  <div class="phase-header">Phase A: CVLPSsが少ない → CVLP（CV系LP）への流入を改善</div>
+  <div class="phase-body">
+
+    <div class="step">
+      <div class="step-icon">A</div>
+      <div class="step-content">
+        <div class="step-title">まずCVLPに十分なセッションを集めることが最優先</div>
+        <div class="step-desc">CVRを議論する前に、母数となるCVLP（TOP/カテゴリ/一覧ページ）へのSsが不足している状態。SEO施策でオーガニック流入を拡大する。</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼ 確認ポイントと施策</div>
+
+    <div class="step">
+      <div class="step-icon">1</div>
+      <div class="step-content">
+        <div class="step-title">カテゴリ / 一覧ページのKW獲得状況</div>
+        <div class="step-desc">各CVLPがターゲットKWで順位を取れているか確認する</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: ターゲットKWの順位</strong>
+            GSCで主要カテゴリKWの平均掲載順位を確認。20位圏外が多い場合は下記施策
+          </div>
+          <div class="check-item">
+            <strong>確認: KWカバー率</strong>
+            想定されるカテゴリKW数に対して、実際に順位を獲得しているKWの割合
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#C62828;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag seo">SEO</span>カテゴリページのtitle / H1にターゲットKWを最適配置</li>
+              <li><span class="action-tag seo">SEO</span>カテゴリ説明文の追加・充実（200文字以上のユニークテキスト）</li>
+              <li><span class="action-tag seo">SEO</span>下層カテゴリ・関連カテゴリへの内部リンク設計</li>
+              <li><span class="action-tag seo">SEO</span>パンくずリスト / BreadcrumbList構造化データ整備</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼</div>
+
+    <div class="step">
+      <div class="step-icon">2</div>
+      <div class="step-content">
+        <div class="step-title">TOPページからCVLPへの導線設計</div>
+        <div class="step-desc">TOPページに流入はあるが、CVLPへ遷移していないケース</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: TOP→カテゴリ遷移率</strong>
+            GA4でTOPページからカテゴリ一覧への遷移率を確認
+          </div>
+          <div class="check-item">
+            <strong>確認: グローバルナビの利用率</strong>
+            カテゴリナビのクリック率が低い場合はナビ設計の問題
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#C62828;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag both">SEO+CVR</span>ファーストビューに主要カテゴリへのビジュアルリンク配置</li>
+              <li><span class="action-tag both">SEO+CVR</span>メガメニュー / カテゴリナビの改善</li>
+              <li><span class="action-tag seo">SEO</span>TOPページのtitle / metaにブランド+主要カテゴリKW</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:#f5f5f5;border-radius:8px;font-size:12px;color:#C62828;text-align:center;">
+      CVLPSsが改善され十分な母数が確保できたら → Q2（CVRは高いか？）へ進む
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== Phase B: CVLPSs十分 & CVR高い → Ss拡大 ===== -->
+<div class="phase p3">
+  <div class="phase-header">Phase B: CVLPSs十分 & CVR高い → SEOでSs（セッション数）をさらに拡大</div>
+  <div class="phase-body">
+
+    <div class="step">
+      <div class="step-icon">B</div>
+      <div class="step-content">
+        <div class="step-title">CVRが健全な状態 → Ssを増やせば売上が伸びる最も効率的なフェーズ</div>
+        <div class="step-desc">CVLPへの流入もありCVRも良好。この状態ではSEOでの流入拡大が売上に直結する。</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼ 確認ポイントと施策</div>
+
+    <div class="step">
+      <div class="step-icon">1</div>
+      <div class="step-content">
+        <div class="step-title">既存KWの順位改善余地</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: 5〜20位のKW群</strong>
+            「あと少しで1ページ目」のKWを洗い出し、伸びしろの大きいものを特定
+          </div>
+          <div class="check-item">
+            <strong>確認: CTR（クリック率）の異常値</strong>
+            順位の割にCTRが低いKW = title/descriptionの改善余地あり
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#1976D2;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag seo">SEO</span>5〜20位KWの対象ページのコンテンツ強化（情報量・独自性の追加）</li>
+              <li><span class="action-tag seo">SEO</span>CTRが低いKWのtitle / meta descriptionリライト</li>
+              <li><span class="action-tag seo">SEO</span>対象ページへの内部リンク増強（関連ページ/パンくず/フッター）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼</div>
+
+    <div class="step">
+      <div class="step-icon">2</div>
+      <div class="step-content">
+        <div class="step-title">新規KW領域の開拓</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: 競合がランクインして自社が取れていないKW</strong>
+            Ahrefs/GSCで競合とのKWギャップを分析
+          </div>
+          <div class="check-item">
+            <strong>確認: 未作成カテゴリ / サブカテゴリ</strong>
+            需要があるのにページが存在しないカテゴリがないか
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#1976D2;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag seo">SEO</span>KWギャップ分析に基づく新規カテゴリページ作成</li>
+              <li><span class="action-tag seo">SEO</span>季節・トレンド系KWに対応する特集LP作成</li>
+              <li><span class="action-tag seo">SEO</span>ロングテール対応のガイド記事・比較コンテンツ追加</li>
+              <li><span class="action-tag seo">SEO</span>商品詳細ページの独自説明文追加（ユニークコンテンツ化）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼</div>
+
+    <div class="step">
+      <div class="step-icon">3</div>
+      <div class="step-content">
+        <div class="step-title">被リンク / ドメイン評価の強化</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: DR（ドメインレーティング）の競合比較</strong>
+            競合とのDR差が大きい場合、順位の天井がある可能性
+          </div>
+          <div class="check-item">
+            <strong>確認: 被リンク獲得のトレンド</strong>
+            新規被リンクが増加傾向か減少傾向か
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#1976D2;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag seo">SEO</span>リンクされやすいコンテンツ資産の作成（調査データ・ツール等）</li>
+              <li><span class="action-tag seo">SEO</span>PR / メディア露出によるナチュラルリンク獲得</li>
+              <li><span class="action-tag seo">SEO</span>壊れた被リンクの修復（リダイレクト設定）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:#f5f5f5;border-radius:8px;font-size:12px;color:#333;text-align:center;">
+      Ss拡大に伴いCVRが低下し始めたら → Phase C（歩留ボトルネック特定）へ移行
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== Phase C: CVLPSs十分 & CVR低い → 歩留ボトルネック特定 ===== -->
+<div class="phase p4">
+  <div class="phase-header">Phase C: CVLPSs十分 & CVR低い → ファネルの歩留ボトルネックを特定</div>
+  <div class="phase-body">
+
+    <div class="step">
+      <div class="step-icon">C</div>
+      <div class="step-content">
+        <div class="step-title">CVLPに流入はあるのにCVしない → ファネルのどこで落ちているか特定する</div>
+        <div class="step-desc">4段階のファネル（一覧→詳細→カート→決済）の各遷移率を計測し、最もドロップが大きい箇所から改善する。</div>
+        <div class="kpi-bar">
+          <div class="kpi-chip"><b>一覧→詳細</b> 遷移率</div>
+          <div class="kpi-chip"><b>詳細→カート</b> 投入率</div>
+          <div class="kpi-chip"><b>カート→決済開始</b> 進行率</div>
+          <div class="kpi-chip"><b>決済開始→完了</b> 完了率</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼ ファネル別の確認と施策</div>
+
+    <!-- ファネル1: 一覧→詳細 -->
+    <div class="step">
+      <div class="step-icon">1</div>
+      <div class="step-content">
+        <div class="step-title">一覧ページ → 商品詳細ページ（遷移率が低い場合）</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: 商品カードの情報量</strong>
+            サムネイル・価格・在庫が一覧上で見えているか
+          </div>
+          <div class="check-item">
+            <strong>確認: フィルタ/ソートの使いやすさ</strong>
+            フィルタ利用率が低い or フィルタ後の離脱が多いか
+          </div>
+          <div class="check-item">
+            <strong>確認: ページ送りでの離脱</strong>
+            2ページ目以降で急激に離脱していないか
+          </div>
+          <div class="check-item">
+            <strong>確認: 検索結果の精度</strong>
+            サイト内検索結果が的外れで離脱を招いていないか
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#D32F2F;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag cvr">CVR</span>商品カードに価格・在庫バッジを表示</li>
+              <li><span class="action-tag cvr">CVR</span>サムネイル画像の品質向上（統一的な撮影 / 白背景）</li>
+              <li><span class="action-tag cvr">CVR</span>フィルタUIの改善（左カラム固定・適用中条件の明示）</li>
+              <li><span class="action-tag cvr">CVR</span>「もっと見る」ボタン / 無限スクロールの導入検討</li>
+              <li><span class="action-tag cvr">CVR</span>サイト内検索のサジェスト・表記ゆれ対応の強化</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼</div>
+
+    <!-- ファネル2: 詳細→カート -->
+    <div class="step">
+      <div class="step-icon">2</div>
+      <div class="step-content">
+        <div class="step-title">商品詳細ページ → カート投入（投入率が低い場合）</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: CTAの視認性</strong>
+            「カートに入れる」ボタンがATF（スクロールせず見える位置）にあるか
+          </div>
+          <div class="check-item">
+            <strong>確認: 商品画像の枚数・品質</strong>
+            複数アングル・使用シーン・ズーム機能があるか（目安5枚以上）
+          </div>
+          <div class="check-item">
+            <strong>確認: 購買判断に必要な情報</strong>
+            送料・配送日目安・返品条件が商品ページ内で明示されているか
+          </div>
+          <div class="check-item">
+            <strong>確認: バリエーション選択UI</strong>
+            サイズ/カラー選択がスムーズか、在庫切れの表示は適切か
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#D32F2F;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag cvr">CVR</span>CTAボタンの色・サイズ・配置の最適化（ATF固定 or 追従型）</li>
+              <li><span class="action-tag cvr">CVR</span>商品画像の追加（使用シーン・サイズ感・動画）</li>
+              <li><span class="action-tag cvr">CVR</span>送料・配送日・返品ポリシーを商品ページ内に明示</li>
+              <li><span class="action-tag cvr">CVR</span>ビジュアルスウォッチ（色見本）/ 在庫連動表示</li>
+              <li><span class="action-tag cvr">CVR</span>「よくある質問」セクションの追加</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼</div>
+
+    <!-- ファネル3: カート→決済開始 -->
+    <div class="step">
+      <div class="step-icon">3</div>
+      <div class="step-content">
+        <div class="step-title">カート → 決済開始（カート離脱率が高い場合）</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: カート内の追加コスト</strong>
+            カートで初めて送料・手数料が表示されてショックを与えていないか
+          </div>
+          <div class="check-item">
+            <strong>確認: 会員登録の壁</strong>
+            決済に進むのに会員登録が必須になっていないか
+          </div>
+          <div class="check-item">
+            <strong>確認: カート内のアップセル過多</strong>
+            レコメンドが多すぎて離脱を招いていないか
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#D32F2F;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag cvr">CVR</span>送料を商品ページの段階で明示（カートでのサプライズ防止）</li>
+              <li><span class="action-tag cvr">CVR</span>ゲスト購入（会員登録なし）の導線を設置</li>
+              <li><span class="action-tag cvr">CVR</span>カート離脱リマインドメール / LINE通知の設定</li>
+              <li><span class="action-tag cvr">CVR</span>カート内レコメンドの適正化（1〜2点に絞る）</li>
+              <li><span class="action-tag cvr">CVR</span>「あとで買う」/ お気に入り保存機能の強化</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">▼</div>
+
+    <!-- ファネル4: 決済開始→完了 -->
+    <div class="step">
+      <div class="step-icon">4</div>
+      <div class="step-content">
+        <div class="step-title">決済開始 → 決済完了（完了率が低い場合）</div>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>確認: フォーム入力のハードル</strong>
+            入力項目数、エラー表示のわかりやすさ、住所自動入力の有無
+          </div>
+          <div class="check-item">
+            <strong>確認: 決済手段の種類</strong>
+            クレカ・コンビニ・後払い・QR決済・Apple Pay等が揃っているか
+          </div>
+          <div class="check-item">
+            <strong>確認: セキュリティへの不安</strong>
+            SSL表示・決済バッジ・プライバシーポリシーが明示されているか
+          </div>
+        </div>
+        <div class="branches">
+          <div class="branch-box" style="border-color:#D32F2F;">
+            <h4>施策</h4>
+            <ul>
+              <li><span class="action-tag cvr">CVR</span>EFO（入力フォーム最適化）: 項目数削減・ステップ分割・リアルタイムバリデーション</li>
+              <li><span class="action-tag cvr">CVR</span>住所自動入力 / クレカ情報のオートフィル対応</li>
+              <li><span class="action-tag cvr">CVR</span>決済手段の拡充（Amazon Pay / 後払い / QR決済）</li>
+              <li><span class="action-tag cvr">CVR</span>セキュリティバッジ・返品保証の表示</li>
+              <li><span class="action-tag cvr">CVR</span>決済ステップのプログレスバー表示</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;padding:12px;background:#f5f5f5;border-radius:8px;font-size:12px;color:#C62828;text-align:center;">
+      歩留改善でCVRが目標値に達したら → Phase B（Ss拡大）に移行し、売上最大化へ
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== Phase D: 施策優先順位 ===== -->
+<div class="phase p5">
+  <div class="phase-header">Phase D: 施策の優先順位付け → 実行管理</div>
+  <div class="phase-body">
+    <div class="step">
+      <div class="step-icon">!</div>
+      <div class="step-content">
+        <div class="step-title">各Phaseで特定された施策をインパクト × 工数で優先順位付け</div>
+        <div class="step-desc" style="line-height:1.8;">
+          Phase A〜Cで洗い出した施策を一覧化し、<strong>「インパクト（1-5） × （6 - 工数）」</strong>の優先スコアで並び替える。<br>
+          Excelテンプレートの「施策優先度」シートに記録し、担当・期限・KPIを設定して実行管理へ移行。
+        </div>
+        <div style="margin-top:14px;padding:14px;background:#f5f5f5;border-radius:8px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><strong>高インパクト × 低工数</strong><br>→ 即実行（Quick Win）</div>
+          <div><strong>高インパクト × 高工数</strong><br>→ 計画的に実行（Strategic）</div>
+          <div><strong>低インパクト × 低工数</strong><br>→ 余裕があれば実行</div>
+          <div><strong>低インパクト × 高工数</strong><br>→ 見送り or 再検討</div>
+        </div>
+
+        <div style="margin-top:16px;padding:14px;background:#F5F5F5;border-radius:8px;font-size:12px;color:#555;line-height:1.8;">
+          <strong>Phase間の循環:</strong><br>
+          Phase A（CVLP改善） → Ssが増えたら → Phase B or C へ<br>
+          Phase B（Ss拡大） → CVRが低下したら → Phase C へ<br>
+          Phase C（歩留改善） → CVRが回復したら → Phase B へ<br>
+          この<strong>サイクルを回し続ける</strong>ことで継続的な売上成長を実現する。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center;color:#999;font-size:11px;margin-top:20px;">DB型ECサイト SEO × CVR 分析フローチャート — 汎用テンプレート</p>
+
+</body>
+</html>
