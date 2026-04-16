@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fulmo EC｜Monthly PDCA アクションプラン</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: #f8f9fa;
+    color: #1a1a1a;
+    padding: 24px;
+    line-height: 1.7;
+  }
+  h1 { text-align: center; font-size: 22px; color: #111; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 8px; }
+
+  /* PDCA Banner */
+  .pdca-banner {
+    max-width: 1100px; margin: 0 auto 24px;
+    display: flex; gap: 0; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .pdca-step {
+    flex: 1; padding: 16px 14px; text-align: center; color: #fff;
+  }
+  .pdca-step .pdca-label { font-size: 20px; font-weight: 800; letter-spacing: 2px; }
+  .pdca-step .pdca-desc { font-size: 11px; margin-top: 2px; opacity: 0.9; }
+  .pdca-step .pdca-week { font-size: 10px; margin-top: 4px; opacity: 0.7; background: rgba(255,255,255,0.15); border-radius: 10px; display: inline-block; padding: 1px 10px; }
+  .pdca-p { background: #C62828; }
+  .pdca-d { background: #E65100; }
+  .pdca-c { background: #1565C0; }
+  .pdca-a { background: #2E7D32; }
+
+  /* Current Status */
+  .status-bar {
+    max-width: 1100px; margin: 0 auto 20px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .status-card {
+    flex: 1; min-width: 200px;
+    background: #fff; border-radius: 10px; border: 1px solid #ddd;
+    padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .status-card .sc-site { font-size: 12px; color: #888; font-weight: 600; }
+  .status-card .sc-grid { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .sc-item { text-align: center; }
+  .sc-item .sc-val { font-size: 18px; font-weight: 700; }
+  .sc-item .sc-val.red { color: #C62828; }
+  .sc-item .sc-label { font-size: 9px; color: #999; }
+
+  /* Week blocks */
+  .week-block {
+    max-width: 1100px; margin: 0 auto 20px;
+    background: #fff; border-radius: 12px; border: 1px solid #ddd;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .week-header {
+    padding: 12px 22px;
+    font-size: 14px; font-weight: 700; color: #fff;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .week-header .wh-sub { font-size: 11px; opacity: 0.8; font-weight: 400; margin-left: auto; }
+  .w1 .week-header { background: #C62828; }
+  .w2 .week-header { background: #E65100; }
+  .w3 .week-header { background: #1565C0; }
+  .w4 .week-header { background: #2E7D32; }
+
+  .week-body { padding: 18px 22px; }
+  .week-goal {
+    font-size: 12px; color: #333;
+    background: #f9f9f9; border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 14px;
+    border-left: 4px solid #ccc;
+  }
+  .w1 .week-goal { border-left-color: #C62828; }
+  .w2 .week-goal { border-left-color: #E65100; }
+  .w3 .week-goal { border-left-color: #1565C0; }
+  .w4 .week-goal { border-left-color: #2E7D32; }
+
+  /* Task rows */
+  .task-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-num {
+    min-width: 24px; height: 24px;
+    border-radius: 50%; color: #fff; font-weight: 700; font-size: 11px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .w1 .task-num { background: #C62828; }
+  .w2 .task-num { background: #E65100; }
+  .w3 .task-num { background: #1565C0; }
+  .w4 .task-num { background: #2E7D32; }
+  .task-main { flex: 1; }
+  .task-title { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+  .task-detail { color: #555; line-height: 1.6; }
+  .task-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; align-items: center; }
+
+  .tag {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    border-radius: 3px; padding: 1px 6px;
+  }
+  .tag-seo { background: #E3F2FD; color: #1565C0; }
+  .tag-cvr { background: #FCE4EC; color: #C62828; }
+  .tag-content { background: #F3E5F5; color: #6A1B9A; }
+  .tag-tech { background: #E8F5E9; color: #2E7D32; }
+  .tag-data { background: #FFF3E0; color: #E65100; }
+  .tag-ux { background: #F3E5F5; color: #4A148C; }
+  .tag-eat { background: #FFF8E1; color: #F57F17; }
+
+  .urgency {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    border-radius: 3px; padding: 1px 6px;
+  }
+  .urg-critical { background: #C62828; color: #fff; }
+  .urg-high { background: #FF8A80; color: #B71C1C; }
+  .urg-mid { background: #FFE0B2; color: #E65100; }
+
+  .time-est {
+    font-size: 9px; color: #888; background: #f0f0f0;
+    border-radius: 3px; padding: 1px 6px;
+  }
+  .site-badge {
+    font-size: 9px; font-weight: 600; border-radius: 3px; padding: 1px 6px;
+  }
+  .sb-both { background: #37474F; color: #fff; }
+  .sb-patira { background: #FFCDD2; color: #B71C1C; }
+  .sb-lw { background: #E1BEE7; color: #4A148C; }
+
+  .manual-ref {
+    font-size: 10px; color: #1565C0; margin-top: 4px;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .manual-ref::before { content: '📹'; font-size: 12px; }
+
+  /* PDCA cycle footer */
+  .pdca-cycle {
+    max-width: 1100px; margin: 0 auto 24px;
+    background: #fff; border-radius: 12px; border: 2px solid #2E7D32;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .pdca-cycle h3 { font-size: 15px; color: #2E7D32; margin-bottom: 12px; border-bottom: 2px solid #E8F5E9; padding-bottom: 6px; }
+
+  .cycle-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .cycle-card {
+    border-radius: 8px; padding: 14px 16px;
+    font-size: 12px; line-height: 1.8;
+  }
+  .cc-p { background: #FFEBEE; border-left: 4px solid #C62828; }
+  .cc-d { background: #FFF3E0; border-left: 4px solid #E65100; }
+  .cc-c { background: #E3F2FD; border-left: 4px solid #1565C0; }
+  .cc-a { background: #E8F5E9; border-left: 4px solid #2E7D32; }
+  .cycle-card b { font-size: 13px; }
+
+  /* KPI */
+  .kpi-section {
+    max-width: 1100px; margin: 0 auto 24px;
+    background: #fff; border-radius: 12px; border: 1px solid #ddd;
+    padding: 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .kpi-section h3 { font-size: 15px; margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 6px; }
+  .kpi-table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+  .kpi-table th, .kpi-table td {
+    padding: 8px 10px; border: 1px solid #e0e0e0;
+  }
+  .kpi-table th { background: #f5f5f5; font-weight: 600; }
+  .kpi-table td { text-align: center; }
+  .kpi-table td:first-child { text-align: left; font-weight: 600; }
+
+  .footer-note {
+    max-width: 1100px; margin: 0 auto;
+    font-size: 11px; color: #999; text-align: center;
+    padding-top: 16px; border-top: 1px solid #eee;
+  }
+
+  @media (max-width: 768px) {
+    .pdca-banner { flex-direction: column; }
+    .status-bar { flex-direction: column; }
+    .cycle-grid { grid-template-columns: 1fr; }
+    body { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Fulmo EC｜Monthly PDCA アクションプラン</h1>
+<div class="subtitle">Phase A（CVLP改善）× Shoppal操作マニュアル連動</div>
+<div style="text-align:center;font-size:11px;color:#999;margin-bottom:20px;">Month 1：2026年4月｜毎月このサイクルを回す</div>
+
+<!-- ===== PDCA Banner ===== -->
+<div class="pdca-banner">
+  <div class="pdca-step pdca-p">
+    <div class="pdca-label">P</div>
+    <div class="pdca-desc">Plan（計画）</div>
+    <div class="pdca-week">Week 1</div>
+  </div>
+  <div class="pdca-step pdca-d">
+    <div class="pdca-label">D</div>
+    <div class="pdca-desc">Do（実行）</div>
+    <div class="pdca-week">Week 2–3</div>
+  </div>
+  <div class="pdca-step pdca-c">
+    <div class="pdca-label">C</div>
+    <div class="pdca-desc">Check（検証）</div>
+    <div class="pdca-week">Week 4</div>
+  </div>
+  <div class="pdca-step pdca-a">
+    <div class="pdca-label">A</div>
+    <div class="pdca-desc">Act（改善）</div>
+    <div class="pdca-week">→ 次月 Week 1</div>
+  </div>
+</div>
+
+<!-- ===== Current Status ===== -->
+<div class="status-bar">
+  <div class="status-card">
+    <div class="sc-site" style="color:#C62828;">Patira（patira.jp）</div>
+    <div class="sc-grid">
+      <div class="sc-item"><div class="sc-val">¥27,810</div><div class="sc-label">売上</div></div>
+      <div class="sc-item"><div class="sc-val">4</div><div class="sc-label">CV</div></div>
+      <div class="sc-item"><div class="sc-val red">0.27%</div><div class="sc-label">CVR</div></div>
+      <div class="sc-item"><div class="sc-val red">96</div><div class="sc-label">CV系LP Ss</div></div>
+    </div>
+  </div>
+  <div class="status-card">
+    <div class="sc-site" style="color:#6A1B9A;">Lovely-wear（lovely-wear.jp）</div>
+    <div class="sc-grid">
+      <div class="sc-item"><div class="sc-val">¥14,380</div><div class="sc-label">売上</div></div>
+      <div class="sc-item"><div class="sc-val">4</div><div class="sc-label">CV</div></div>
+      <div class="sc-item"><div class="sc-val red">0.32%</div><div class="sc-label">CVR</div></div>
+      <div class="sc-item"><div class="sc-val red">92</div><div class="sc-label">CV系LP Ss</div></div>
+    </div>
+  </div>
+  <div class="status-card" style="background:#FFEBEE;border-color:#EF9A9A;">
+    <div class="sc-site" style="color:#C62828;">Phase判定</div>
+    <div style="font-size:20px;font-weight:800;color:#C62828;margin-top:4px;">Phase A</div>
+    <div style="font-size:10px;color:#C62828;">CV系LP Ss < 1,000 → CVLP改善が最優先</div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- WEEK 1: PLAN — 最緊急SEO施策 -->
+<!-- ============================= -->
+<div class="week-block w1">
+  <div class="week-header">
+    <span style="font-size:16px;">🔥</span>
+    <b>Week 1</b>｜PLAN＋緊急Do — CTR異常値の即時解消
+    <span class="wh-sub">4/16（水）– 4/22（火）</span>
+  </div>
+  <div class="week-body">
+    <div class="week-goal">
+      <b>Why Week1か：</b>title/metaは変更後2〜5日でGSC反映。早く着手するほど月内に効果検証できる。CTR 0%の異常値は「やるだけで上がる」確実な施策。
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">1</div>
+      <div class="task-main">
+        <div class="task-title">SEOテキスト — カテゴリtitle/meta description全件最適化</div>
+        <div class="task-detail">
+          Patira: cat/9(着物) pos7.6/CTR0% → 即修正、cat/8(靴) imp216/0click、cat/12(ピンク) imp192/0click、全24カテゴリのmeta一括設定<br>
+          LW: TOP pos12.66/CTR0.2%(期待値5%) → title改善、cat/6(ネグリジェ) pos21.5、cat/25 pos26.4、全カテゴリmeta設定
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-critical">緊急</span>
+          <span class="tag tag-seo">SEO</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各3〜4h</span>
+        </div>
+        <div class="manual-ref">SEOテキスト.mov（横山諒 / 424MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">2</div>
+      <div class="task-main">
+        <div class="task-title">取れてるクエリにKWを合わせる — GSC実データ→title/H1に反映</div>
+        <div class="task-detail">
+          GSCで実際にimp獲得中のクエリを確認し、カテゴリtitle/H1のKW配置を最適化。<br>
+          例）Patira cat/9「結婚式 着物」で73imp → titleに「結婚式お呼ばれ 着物スタイル一覧」を反映
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-critical">緊急</span>
+          <span class="tag tag-seo">SEO</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各2h</span>
+        </div>
+        <div class="manual-ref">【2026年4月版】取れてるクエリにKWを合わせる方法（横山諒 / 1.7MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">3</div>
+      <div class="task-main">
+        <div class="task-title">監修者情報 — E-E-A-T対策の監修者プロフィール設置</div>
+        <div class="task-detail">
+          信頼性向上のため監修者情報をサイトに設置。Google品質評価ガイドラインのE-E-A-T対応。<br>
+          既にSkillsで作成済みの監修者プロフィールテキストを使用。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-high">高</span>
+          <span class="tag tag-eat">E-E-A-T</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各1h</span>
+        </div>
+        <div class="manual-ref">監修者情報.mov（横山諒 / 293MB）＋ 監修者情報（井上摘美）</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- WEEK 2: DO — 内部導線＋構造改善 -->
+<!-- ============================= -->
+<div class="week-block w2">
+  <div class="week-header">
+    <span style="font-size:16px;">⚡</span>
+    <b>Week 2</b>｜DO — 内部導線構築＋カニバリ解消
+    <span class="wh-sub">4/23（水）– 4/29（火）</span>
+  </div>
+  <div class="week-body">
+    <div class="week-goal">
+      <b>Why Week2か：</b>Week1のtitle改善でCTR→Ssが増え始める。その受け皿として内部導線を整備し、記事LP→カテゴリ→商品詳細の遷移率を上げる。
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">1</div>
+      <div class="task-main">
+        <div class="task-title">カニバリ解消×AI — リダイレクト実行＋統合記事body書き換え</div>
+        <div class="task-detail">
+          既に出力済みのカニバリ分析Excel（ryumia 116件、hammock-lab 9件、totebase 10件、noirkloris 13件、tsutsumin-bag 3件）に基づき、301リダイレクト設定＋統合先のbody書き換えを実行。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-critical">緊急</span>
+          <span class="tag tag-seo">SEO</span>
+          <span class="site-badge sb-both">対象5サイト</span>
+          <span class="time-est">4〜6h</span>
+        </div>
+        <div class="manual-ref">カニバリ解消×AI.mov（武藤恭生 / 408MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">2</div>
+      <div class="task-main">
+        <div class="task-title">カテゴリマルチアサイン — 商品を複数カテゴリに紐づけ</div>
+        <div class="task-detail">
+          1商品が1カテゴリにしか属していない → 複数カテゴリに紐づけてカテゴリSsの受け皿を拡大。<br>
+          例）パジャマ → 「ネグリジェ」「レディース」「ギフト」にも表示される状態にする。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-high">高</span>
+          <span class="tag tag-content">内部構造</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各2〜3h</span>
+        </div>
+        <div class="manual-ref">カテゴリマルチアサイン.mov（横山諒 / 387MB）＋ カテゴリマルチアサインマニュアル（五島紗弥）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">3</div>
+      <div class="task-main">
+        <div class="task-title">診断コンテンツの作成 — 記事LP→カテゴリ誘導CTA</div>
+        <div class="task-detail">
+          記事LP（Patira articles/53: 月122click、LW articles/13: 月190Ss）にカテゴリ誘導の診断型コンテンツを設置。<br>
+          「あなたにぴったりのルームウェアは？」形式で記事→カテゴリの遷移率を高める。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-high">高</span>
+          <span class="tag tag-cvr">CVR</span>
+          <span class="tag tag-content">コンテンツ</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各2h</span>
+        </div>
+        <div class="manual-ref">診断コンテンツの作成（武藤恭生 / Google Doc）</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- WEEK 3: DO — UX/CVR改善 -->
+<!-- ============================= -->
+<div class="week-block w3">
+  <div class="week-header">
+    <span style="font-size:16px;">🛠</span>
+    <b>Week 3</b>｜DO — UX改善＋購入障壁の低減
+    <span class="wh-sub">4/30（水）– 5/6（火）</span>
+  </div>
+  <div class="week-body">
+    <div class="week-goal">
+      <b>Why Week3か：</b>Week1-2で流入＋導線が改善し始める。次はファネル内の離脱を減らすフェーズ。商品詳細→住所入力の98%離脱を攻める。
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">1</div>
+      <div class="task-main">
+        <div class="task-title">商品カセットを縦長に変更 — 商品一覧の視認性UP→詳細遷移率改善</div>
+        <div class="task-detail">
+          カテゴリ一覧の商品カード表示を縦長レイアウトに変更。商品画像が大きく見え、詳細遷移率（現状39.5%〜62.7%）の改善を狙う。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-high">高</span>
+          <span class="tag tag-ux">UX</span>
+          <span class="tag tag-cvr">CVR</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各1h</span>
+        </div>
+        <div class="manual-ref">商品カセットを縦長に変更.mov（武藤恭生 / 12MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">2</div>
+      <div class="task-main">
+        <div class="task-title">FAQ — 商品詳細ページにFAQ追加（購入障壁の低減＋構造化データ）</div>
+        <div class="task-detail">
+          商品詳細→住所入力で98%離脱（LW）。サイズ・素材・洗濯方法・返品ポリシーのFAQを追加し不安を解消。<br>
+          FAQPage構造化データ（JSON-LD）も同時実装→リッチリザルト表示でCTR向上。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-critical">緊急</span>
+          <span class="tag tag-cvr">CVR</span>
+          <span class="tag tag-tech">テクニカル</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各2〜3h</span>
+        </div>
+        <div class="manual-ref">FAQ.mov（横山諒 / 472MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">3</div>
+      <div class="task-main">
+        <div class="task-title">フォントの変更と絞り込み機能の追加 — カテゴリページUX強化</div>
+        <div class="task-detail">
+          フォント統一でブランド感を醸成。絞り込み機能（サイズ・色・価格帯）追加で商品探索のUX向上→詳細遷移率UP。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-mid">中</span>
+          <span class="tag tag-ux">UX</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各2h</span>
+        </div>
+        <div class="manual-ref">フォントの変更と絞り込み機能の追加.mov（横山諒 / 338MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">4</div>
+      <div class="task-main">
+        <div class="task-title">送料変更 — 送料設定の見直し（購入障壁対策）</div>
+        <div class="task-detail">
+          chatgpt.com経由が住所入力56%到達→CV0件 = 送料/決済が障壁の可能性。送料無料ラインの設定や表示方法を見直し。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-high">高</span>
+          <span class="tag tag-cvr">CVR</span>
+          <span class="site-badge sb-lw">LW優先</span>
+          <span class="time-est">1h</span>
+        </div>
+        <div class="manual-ref">送料変更.mov（横山諒 / 12MB）</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= -->
+<!-- WEEK 4: CHECK + ACT -->
+<!-- ============================= -->
+<div class="week-block w4">
+  <div class="week-header">
+    <span style="font-size:16px;">📊</span>
+    <b>Week 4</b>｜CHECK＋ACT — 効果測定＋最適化＋次月計画
+    <span class="wh-sub">5/7（水）– 5/13（火）</span>
+  </div>
+  <div class="week-body">
+    <div class="week-goal">
+      <b>Why Week4か：</b>Week1のtitle変更が2〜3週間で反映。ここでGSC/GA4を再取得し、全施策の効果を定量検証。成果に基づき次月のPlan策定。
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">1</div>
+      <div class="task-main">
+        <div class="task-title">表示順位変更 — CV率の高い商品を上位表示に最適化</div>
+        <div class="task-detail">
+          3週間の販売データをもとに、CV率・売上上位の商品をカテゴリ内で上位表示に調整。データドリブンな並び替え。
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-mid">中</span>
+          <span class="tag tag-cvr">CVR</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各1h</span>
+        </div>
+        <div class="manual-ref">表示順位変更.mov（横山諒 / 176MB）</div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">2</div>
+      <div class="task-main">
+        <div class="task-title">CHECK — GSC/GA4データ再取得 ＆ 効果測定</div>
+        <div class="task-detail">
+          <b>GSC：</b>title改善後のimp/click/CTR/pos変化（特にCTR0%だったカテゴリ）<br>
+          <b>GA4：</b>カテゴリSs推移、記事→カテゴリ遷移率、ファネル（詳細→住所遷移率）の変化<br>
+          <b>判定：</b>CV系LP Ss ≥ 150 → Phase A継続深堀り ／ ≥ 200 → Phase B移行検討
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-critical">緊急</span>
+          <span class="tag tag-data">計測</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">各2h</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <div class="task-num">3</div>
+      <div class="task-main">
+        <div class="task-title">ACT — 分析HTMLレポート更新 ＋ 次月PDCAプラン策定</div>
+        <div class="task-detail">
+          最新データで両サイトの分析HTMLを再生成→GitHub Pages更新。<br>
+          <b>うまくいった施策：</b>翌月も継続・横展開<br>
+          <b>効果が出なかった施策：</b>原因分析→アプローチ変更<br>
+          <b>新たに発見した課題：</b>翌月Week1に組み込み
+        </div>
+        <div class="task-meta">
+          <span class="urgency urg-critical">緊急</span>
+          <span class="tag tag-data">レポート</span>
+          <span class="site-badge sb-both">両サイト</span>
+          <span class="time-est">3h</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ===== Monthly PDCA Cycle ===== -->
+<div class="pdca-cycle">
+  <h3>🔄 Monthly PDCAサイクル設計</h3>
+  <div class="cycle-grid">
+    <div class="cycle-card cc-p">
+      <b>P — Plan（Week 1）</b><br>
+      前月のCheck結果から優先施策を決定<br>
+      GSCデータで新しいCTR異常値を発見<br>
+      Shoppalマニュアルの中から今月の実行項目を選定<br>
+      <b>即効性の高いSEOテキスト・KW最適化は毎月Week1で実行</b>
+    </div>
+    <div class="cycle-card cc-d">
+      <b>D — Do（Week 2–3）</b><br>
+      Shoppal管理画面で施策を実行<br>
+      内部導線構築・コンテンツ拡充・UX改善<br>
+      各施策は対応するマニュアル動画を参照<br>
+      <b>作業完了時にスクショを残す（Check用）</b>
+    </div>
+    <div class="cycle-card cc-c">
+      <b>C — Check（Week 4前半）</b><br>
+      GSCデータ再取得（title変更は2〜3週後反映）<br>
+      GA4ファネルデータ再取得<br>
+      KPI対比（CV系LP Ss / CTR / カテゴリSs / 遷移率）<br>
+      <b>分析HTMLレポートを最新データで再生成</b>
+    </div>
+    <div class="cycle-card cc-a">
+      <b>A — Act（Week 4後半 → 次月Week 1）</b><br>
+      効果あり → 横展開・深堀り継続<br>
+      効果なし → 原因分析→アプローチ変更<br>
+      Phase移行判定（Ss/CVR基準）<br>
+      <b>次月のWeek1 Planに反映して新サイクル開始</b>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;text-align:center;padding:12px;background:#f5f5f5;border-radius:8px;font-size:12px;color:#333;">
+    <b>Month 1</b>（4月）→ <b>Month 2</b>（5月）→ <b>Month 3</b>（6月）→ …<br>
+    毎月同じWeek1-4構造で回し、Checkの数字が改善していることを確認しながらPhaseを進める
+  </div>
+</div>
+
+
+<!-- ===== KPI Targets ===== -->
+<div class="kpi-section">
+  <h3>🎯 Month 1 KPI目標（5月中旬 Check時点）</h3>
+  <table class="kpi-table">
+    <thead>
+      <tr>
+        <th style="text-align:left;">KPI</th>
+        <th>Patira<br><span style="font-weight:400;font-size:10px;">現状</span></th>
+        <th>Patira<br><span style="font-weight:400;font-size:10px;">目標</span></th>
+        <th>LW<br><span style="font-weight:400;font-size:10px;">現状</span></th>
+        <th>LW<br><span style="font-weight:400;font-size:10px;">目標</span></th>
+        <th style="text-align:left;">対応施策</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CV系LP Ss</td>
+        <td style="color:#C62828;font-weight:700;">96</td>
+        <td style="color:#2E7D32;font-weight:700;">150+</td>
+        <td style="color:#C62828;font-weight:700;">92</td>
+        <td style="color:#2E7D32;font-weight:700;">150+</td>
+        <td style="text-align:left;">SEOテキスト＋KW最適化＋カテゴリマルチアサイン</td>
+      </tr>
+      <tr>
+        <td>カテゴリCTR</td>
+        <td>≈0%</td>
+        <td style="color:#2E7D32;font-weight:700;">2%+</td>
+        <td>0.5%</td>
+        <td style="color:#2E7D32;font-weight:700;">3%+</td>
+        <td style="text-align:left;">SEOテキスト＋取れてるクエリKW合わせ</td>
+      </tr>
+      <tr>
+        <td>カテゴリSs</td>
+        <td>17</td>
+        <td style="color:#2E7D32;font-weight:700;">50+</td>
+        <td>16</td>
+        <td style="color:#2E7D32;font-weight:700;">50+</td>
+        <td style="text-align:left;">診断コンテンツ＋カテゴリマルチアサイン</td>
+      </tr>
+      <tr>
+        <td>詳細遷移率</td>
+        <td>62.7%</td>
+        <td style="color:#2E7D32;font-weight:700;">65%+</td>
+        <td>39.5%</td>
+        <td style="color:#2E7D32;font-weight:700;">50%+</td>
+        <td style="text-align:left;">商品カセット縦長＋フォント/絞り込み</td>
+      </tr>
+      <tr style="background:#FFF8F8;">
+        <td>詳細→住所遷移率</td>
+        <td>3.2%</td>
+        <td>3.2%</td>
+        <td style="color:#C62828;font-weight:700;">2.0%</td>
+        <td style="color:#2E7D32;font-weight:700;">3%+</td>
+        <td style="text-align:left;">FAQ＋送料変更</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:14px;padding:12px;background:#E8F5E9;border-radius:8px;font-size:12px;color:#1b5e20;line-height:1.8;">
+    <b>Phase移行判定（毎月Check時に実施）：</b><br>
+    CV系LP Ss ≥ 200 かつ CVR ≥ 0.5% → <b>Phase B</b>（Ss拡大フェーズ）<br>
+    CV系LP Ss ≥ 200 かつ CVR &lt; 0.5% → <b>Phase C</b>（歩留まり改善フェーズ）<br>
+    CV系LP Ss &lt; 200 → <b>Phase A継続</b>（CVLP改善の深堀り）
+  </div>
+</div>
+
+<div class="footer-note">
+  Fulmo EC Monthly PDCA アクションプラン｜生成日: 2026-04-16｜基準データ: 2026年3月実績<br>
+  Shoppalマニュアル参照: Google Drive共有フォルダ｜分析ソース: <a href="https://yinoue-pm.github.io/Fulmo-EC/" style="color:#1565C0;">Fulmo EC Portal</a>
+</div>
+
+</body>
+</html>
